@@ -31,11 +31,6 @@ CREATE TABLE IF NOT EXISTS {REDSHIFT_SCHEMA}.popular_songs(
 );
 """
 
-SQL_QUERY = f""""
-select * 
-from f1db.circuits
-"""
-
 def run_mysql_query(**kwargs):
     conn = mysql.connector.connect(
         host="mysql",  # nombre del servicio en docker-compose
