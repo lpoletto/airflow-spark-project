@@ -152,5 +152,28 @@ services:
       # - ./spark_working_dir:/home/spark/working_dir
       - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
 
+  # -----------------------------------------------------------
+  # MySQL
+  # -----------------------------------------------------------
+  mysql:
+    hostname: mysql
+    image: mysql:8.0.32
+    container_name: mysql
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"  # Mapeo el puerto 3307:3306 si en la máquina local al puerto 3306 dentro del contenedor
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/f1db.sql:/docker-entrypoint-initdb.d/f1db.sql
+    # networks:
+    #   - data-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "f1user", "-pf1password"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
 volumes:
   postgres_data:
+  mysql_data:

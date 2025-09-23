@@ -6,7 +6,8 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-
+from airflow.providers.mysql.operators.mysql import MySqlOperator
+import mysql.connector
 
 from airflow.models import Variable
 
@@ -14,6 +15,7 @@ from datetime import datetime, timedelta
 
 
 REDSHIFT_SCHEMA = env["REDSHIFT_SCHEMA"]
+MYSQL_DATABASE = env["MYSQL_DATABASE"]
 
 QUERY_CREATE_TABLE = f"""
 CREATE TABLE IF NOT EXISTS {REDSHIFT_SCHEMA}.popular_songs(
@@ -28,6 +30,29 @@ CREATE TABLE IF NOT EXISTS {REDSHIFT_SCHEMA}.popular_songs(
     timestamp_ TIMESTAMP NOT NULL
 );
 """
+
+SQL_QUERY = f""""
+select * 
+from f1db.circuits
+"""
+
+def run_mysql_query(**kwargs):
+    conn = mysql.connector.connect(
+        host="mysql",  # nombre del servicio en docker-compose
+        user=env["MYSQL_USER"],
+        password=env["MYSQL_PASSWORD"],
+        database=env["MYSQL_DATABASE"],
+        port=3306
+    )
+    cursor = conn.cursor()
+    cursor.execute("""
+        select * 
+        from f1db.circuits
+    """)
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    print(results)  # o haz lo que necesites con los resultados
 
 
 # def send_email():
@@ -68,6 +93,13 @@ with DAG(
         dag=dag,
     )
 
+    select_table = PythonOperator(
+        task_id="select_table",
+        python_callable=run_mysql_query,
+        provide_context=True,
+        dag=dag,
+    )
+
 
     # spark_etl_spotify = SparkSubmitOperator(
     #     task_id="spark_etl_spotify",
@@ -85,5 +117,5 @@ with DAG(
     #     dag=dag
     # )
 
-    create_table 
+    create_table >> select_table
     # >> spark_etl_spotify >> send_error_email

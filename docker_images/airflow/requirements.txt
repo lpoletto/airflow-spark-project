@@ -2,9 +2,11 @@ apache-airflow-providers-apache-spark
 apache-airflow[amazon]
 apache-airflow-providers-amazon
 apache-airflow-providers-postgres
+apache-airflow-providers-mysql
 apache-airflow-providers-http
 pandas
 boto3
 minio
 requests
 psycopg2-binary
+mysql-connector-python
