@@ -15,7 +15,7 @@ POSTGRES_USER=... # YOUR_POSTGRES_USER
 POSTGRES_SCHEMA=... # YOUR_POSTGRES_SCHEMA
 POSTGRES_PASSWORD=... # YOUR_POSTGRES_PASSWORD
 POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
-DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar
+DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar
 ```
 3. Descargar las imagenes de Airflow y Spark. En caso de error al descargar las imagenes, debe hacer un login en DockerHub.
 ```bash
@@ -25,7 +25,7 @@ docker pull lpoletto/spark:spark_3_4_1
 4. Las imagenes fueron generadas a partir de los Dockerfiles ubicados en `docker_images/`. Si se desea generar las imagenes nuevamente, ejecutar los comandos que están en los Dockerfiles.
 5. Ejecutar el siguiente comando para levantar los servicios de Airflow y Spark.
 ```bash
-docker-compose up --build
+docker-compose up -d
 ```
 6. Una vez que los servicios estén levantados, ingresar a Airflow en `http://localhost:8080/`.
 7. En la pestaña `Admin -> Connections` crear una nueva conexión con los siguientes datos para Postgres:
@@ -49,16 +49,26 @@ docker-compose up --build
 10. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
     * Key: `spark_scripts_dir`
     * Value: `/opt/airflow/scripts`
-11. Ejecutar el DAG `my_dag`.
+11. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
+    * Key: `raw_data_dir`
+    * Value: `/opt/airflow/data/raw_data`
+...
+12. Ejecutar el DAG `my_dag`.
 
 #
 
 crear archivo `.env` colocar AIRFLOW_UID=50000
-El problema es de permisos en el volumen de logs.
 
-Solución recomendada: sudo chown -R 50000:50000 ./logs
+El problema de permisos en el volumen de logs y data. Solución recomendada:
+
+```bash 
+sudo chown -R 50000:50000 ./logs
+sudo chown -R 50000:50000 ./data
+```
 
 Luego reinicia tus servicios:
 
+```bash
 docker-compose down
 docker-compose up -d
+```

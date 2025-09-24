@@ -1,9 +1,10 @@
+import os
 from os import environ as env
 from datetime import datetime
 from pyspark.sql import SparkSession
 
 # Path del driver de Postgres para Spark (JDBC) (También sirve para Redshift)
-DRIVER_PATH = env["DRIVER_MYSQL_PATH"]
+DRIVER_PATH = env["DRIVER_PATH"]
 # JDBC_DRIVER = "org.postgresql.Driver"
 JDBC_DRIVER = "com.mysql.cj.jdbc.Driver"
 
@@ -23,7 +24,7 @@ mysql_properties = {
     "driver": JDBC_DRIVER
 }
 
-print("====Step 1 - Read data from MySql database====")
+print("==== Step 1 - Read data from MySql database ====")
 try:
     # Leer una tabla de la base de datos f1db
     sql_query = """
@@ -45,11 +46,18 @@ except Exception as e:
     print(f"\n❌ Connection failed: {str(e)}")
 
 # Mostrar el esquema y las primeras filas del DataFrame
-print("\n====Mostrar el esquema y las primeras filas del DataFrame====")
+print("\n==== Mostrar el esquema y las primeras filas del DataFrame ====")
 df.show(10, truncate=False)
-print(f"\n====Total records====\n{df.count()}")
-print(f"\n====Schema====")
+print(f"\n==== Total records ====\n{df.count()}")
+print(f"\n==== Schema ====")
 df.printSchema()
 
-print("\n====Step 2 - Write data to datalake as csv====")
+print("\n==== Step 2 - Write data to datalake as csv ====")
+# Obtener el directorio
+data_path = "/opt/airflow/data/raw_data"
+# Guardar en MinIO en formato CSV
+df.coalesce(1).write.csv(f"{data_path}/circuits", header=True, mode="overwrite")
+
+print("\n==== Datos guardados en MinIO con éxito ====")
+print(f"\nRuta: ./data/raw_data/circuits")
 spark.sparkContext.stop()
