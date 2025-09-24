@@ -3,11 +3,13 @@
 1. Crear las siguientes carpetas a la misma altura del `docker-compose.yml`.
 
 ```bash
-mkdir -p ./dags ./logs ./plugins ./config ./scripts ./spark_drivers
+mkdir -p ./dags ./logs ./plugins ./config ./scripts ./spark_drivers ./data ./database
 ```
 
 2. Crear un archivo con variables de entorno llamado `.env` ubicado a la misma altura que el `docker-compose.yml`. Cuyo contenido sea:
+
 ```bash
+AIRFLOW_UID=50000
 POSTGRES_HOST=... # YOUR_POSTGRES_HOST
 POSTGRES_PORT=... # YOUR_POSTGRES_PORT
 POSTGRES_DB=... # YOUR_POSTGRES_DB
@@ -16,6 +18,13 @@ POSTGRES_SCHEMA=... # YOUR_POSTGRES_SCHEMA
 POSTGRES_PASSWORD=... # YOUR_POSTGRES_PASSWORD
 POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
 DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar
+# Variables para MySQL
+MYSQL_ROOT_PASSWORD=rootpassword
+MYSQL_DATABASE=f1db
+MYSQL_USER=f1user
+MYSQL_PASSWORD=f1password
+MYSQL_PORT=3306
+MYSQL_HOST=mysql
 ```
 3. Descargar Drivers JDBC y JARs
 
