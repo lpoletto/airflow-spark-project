@@ -65,6 +65,7 @@ x-airflow-common:
     - ./plugins:/opt/airflow/plugins
     - ./scripts:/opt/airflow/scripts
     - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
+    - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
     postgres:
@@ -134,6 +135,7 @@ services:
     volumes:
       # - ./spark_working_dir:/home/spark/working_dir
       - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
+      - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
   
   spark-worker:
     image: lpoletto/spark:spark_3_4_1
@@ -151,6 +153,7 @@ services:
     volumes:
       # - ./spark_working_dir:/home/spark/working_dir
       - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
+      - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
 
   # -----------------------------------------------------------
   # MySQL
