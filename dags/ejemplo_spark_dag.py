@@ -34,7 +34,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/spark_etl.py',
         conn_id="spark_default",
         dag=dag,
-        driver_class_path=Variable.get("driver_mysql_path"),
+        driver_class_path=Variable.get("driver_class_path"),
     )
 
 

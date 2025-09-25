@@ -10,14 +10,14 @@ mkdir -p ./dags ./logs ./plugins ./config ./scripts ./spark_drivers ./data ./dat
 
 ```bash
 AIRFLOW_UID=50000
-POSTGRES_HOST=... # YOUR_POSTGRES_HOST
-POSTGRES_PORT=... # YOUR_POSTGRES_PORT
-POSTGRES_DB=... # YOUR_POSTGRES_DB
-POSTGRES_USER=... # YOUR_POSTGRES_USER
-POSTGRES_SCHEMA=... # YOUR_POSTGRES_SCHEMA
-POSTGRES_PASSWORD=... # YOUR_POSTGRES_PASSWORD
-POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
-DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar
+REDSHIFT_HOST=postgres # YOUR_REDSHIFT_HOST
+REDSHIFT_PORT=5432 # YOUR_REDSHIFT_PORT
+REDSHIFT_DB=postgres # YOUR_REDSHIFT_DB
+REDSHIFT_USER=airflow # YOUR_REDSHIFT_USER
+REDSHIFT_SCHEMA=public # YOUR_REDSHIFT_SCHEMA
+REDSHIFT_PASSWORD=airflow # YOUR_REDSHIFT_PASSWORD
+REDSHIFT_URL="jdbc:postgresql://${REDSHIFT_HOST}:${REDSHIFT_PORT}/${REDSHIFT_DB}?user=${REDSHIFT_USER}&password=${REDSHIFT_PASSWORD}"
+DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar,/tmp/drivers/hadoop-aws-3.3.1.jar,/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar
 # Variables para MySQL
 MYSQL_ROOT_PASSWORD=rootpassword
 MYSQL_DATABASE=f1db
@@ -25,6 +25,10 @@ MYSQL_USER=f1user
 MYSQL_PASSWORD=f1password
 MYSQL_PORT=3306
 MYSQL_HOST=mysql
+
+# Variables para MinIO
+MINIO_ROOT_USER=minio
+MINIO_ROOT_PASSWORD=minio123
 ```
 3. Descargar Drivers JDBC y JARs
 
@@ -41,6 +45,9 @@ Ejecutar los siguientes comandos para descargar los drivers:
 ```bash
 wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.5.2/postgresql-42.5.2.jar
 wget https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar
+wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar
+wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.375/aws-java-sdk-bundle-1.11.375.jar
+
 ```
 4. Descargar las imagenes de Airflow y Spark. En caso de error al descargar las imagenes, debe hacer un login en DockerHub.
 ```bash
@@ -70,7 +77,7 @@ docker-compose up -d
     * Extra: `{"queue": "default"}`
 10. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
     * Key: `driver_class_path`
-    * Value: `/tmp/drivers/postgresql-42.5.2.jar`
+    * Value: `/tmp/drivers/postgresql-42.5.2.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/hadoop-aws-3.3.1.jar:/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar`
 11. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
     * Key: `spark_scripts_dir`
     * Value: `/opt/airflow/scripts`
@@ -96,4 +103,8 @@ Luego reinicia tus servicios:
 ```bash
 docker-compose down
 docker-compose up -d
+```
+Si cambia algo del dockercompose, entonces:
+```bash
+docker-compose up -d --build
 ```

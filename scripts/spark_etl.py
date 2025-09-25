@@ -1,4 +1,3 @@
-import os
 from os import environ as env
 from datetime import datetime
 from pyspark.sql import SparkSession
@@ -13,6 +12,11 @@ spark = SparkSession.builder.master("local[1]") \
     .appName("ETL Spark") \
     .config("spark.jars", DRIVER_PATH) \
     .config("spark.executor.extraClassPath", DRIVER_PATH) \
+    .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
+    .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000") \
+    .config("spark.hadoop.fs.s3a.access.key", env["MINIO_ROOT_USER"]) \
+    .config("spark.hadoop.fs.s3a.secret.key", env["MINIO_ROOT_PASSWORD"]) \
+    .config("spark.hadoop.fs.s3a.path.style.access", "true") \
     .getOrCreate()
 
 
@@ -54,10 +58,11 @@ df.printSchema()
 
 print("\n==== Step 2 - Write data to datalake as csv ====")
 # Obtener el directorio
-data_path = "/opt/airflow/data/raw_data"
+# data_path = "/opt/airflow/data/raw_data"
+data_path = "s3a://my-bucket"
 # Guardar en MinIO en formato CSV
 df.coalesce(1).write.csv(f"{data_path}/circuits", header=True, mode="overwrite")
 
 print("\n==== Datos guardados en MinIO con éxito ====")
-print(f"\nRuta: ./data/raw_data/circuits")
+print(f"\nRuta: {data_path}/circuits")
 spark.sparkContext.stop()
